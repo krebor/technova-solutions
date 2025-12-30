@@ -1,0 +1,5 @@
+.technova_config
+identities.json
+*.log
+.DS_Store
+.vscode/
