@@ -33,21 +33,26 @@ Rješenje je dizajnirano prema Microsoft Well-Architected Framework principima, 
 
 ## Preduvjeti
 
-Prije početka, osigurajte da na svom računalu imate instalirane sljedeće alate.
+Prije početka, osigurajte da na svom računalu imate instalirane sljedeće alate i module.
 
-### 1. Instalacija alata
-*   **Visual Studio Code**: Preporučeni editor.
-    *   Instalirajte "Bicep" ekstenziju unutar VS Code editora.
-*   **PowerShell 7+**: Preporučena verzija terminala (cross-platform).
+### 1. Instalacija alata i modula
+*   **Visual Studio Code**: Preporučeni editor (uz "Bicep" ekstenziju).
+*   **PowerShell 7+**: Preporučena verzija terminala.
 *   **Azure CLI**: Alat za upravljanje Azure resursima.
-*   **Git**: Za preuzimanje repozitorija.
+*   **PowerShell Moduli**:
+    *   `Az` (Azure PowerShell moduli)
+    *   `Microsoft.Graph` (Microsoft Graph API SDK)
 
-### 2. Provjera instalacije
+### 2. Provjera i instalacija preduvjeta
 Otvorite terminal (PowerShell) i pokrenite sljedeće naredbe:
 ```powershell
-az --version       # Provjera Azure CLI verzije
-$PSVersionTable    # Provjera PowerShell verzije
-git --version      # Provjera git verzije
+# Instalacija potrebnih modula (ako već nisu instalirani)
+Install-Module -Name Az -Scope CurrentUser -Repository PSGallery -Force
+Install-Module -Name Microsoft.Graph -Scope CurrentUser -Repository PSGallery -Force
+
+# Provjera verzija
+az --version
+$PSVersionTable
 ```
 
 ---
@@ -122,7 +127,7 @@ Pokrenite skriptu:
 ```powershell
 ./destroy.ps1
 ```
-Ova skripta će sinkrono obrisati cijelu Resource Grupu i sve kreirane identitete iz Entra ID-a.
+Ova skripta sinkrono briše cijelu Resource Grupu, sve Entra ID identitete te vrši **Purge** (trajno brisanje) Key Vaulta radi sprečavanja konflikata kod idućeg deploymenta.
 
 ---
 
@@ -133,9 +138,15 @@ Ova skripta će sinkrono obrisati cijelu Resource Grupu i sve kreirane identitet
 ├── deploy.ps1                 # Glavna skripta za deployment
 ├── destroy.ps1                # Skripta za brisanje okoline
 ├── README.md                  # Dokumentacija rješenja
+├── dokument.txt               # Sadržaj za finalnu PDF dokumentaciju
 ├── azure-deploy/              # Bicep Infrastructure-as-Code
 │   ├── main.bicep             # Glavna orkestracija resursa
 │   └── modules/               # Modularne Bicep komponente
+│       ├── appservice.bicep   # PaaS Web App + Autoscale
+│       ├── keyvault.bicep     # Sigurno upravljanje tajnama
+│       ├── dashboard.bicep    # Vizualni monitoring dashboard
+│       ├── compute.bicep      # VMSS (IaaS) + Autoscale
+│       └── ...                # Ostali moduli (Network, SQL, AKS...)
 └── scripts/                   # PowerShell pomoćne skripte
 ```
 
