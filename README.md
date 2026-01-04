@@ -1,4 +1,4 @@
-# TechNova Solutions - Azure Cloud Migracija
+# TechNova Solutions - Azure Cloud migracija
 
 Dobrodošli u repozitorij projekta za modernizaciju IT infrastrukture tvrtke TechNova Solutions.
 Ovo rješenje demonstrira implementaciju Infrastructure as Code (IaC) principa koristeći Azure Bicep i PowerShell za potpunu automatizaciju cloud okoline na Microsoft Azure platformi.
@@ -7,13 +7,13 @@ Projekt je izrađen u sklopu kolegija "Implementacija računarstva u oblaku" na 
 
 ---
 
-## Arhitektura Rješenja
+## Arhitektura rješenja
 
 Rješenje je dizajnirano prema Microsoft Well-Architected Framework principima, s naglaskom na sigurnost, automatizaciju i skalabilnost.
 
 ![High-Level Architecture](assets/architecture_diagram.png)
 
-### Ključne Komponente
+### Ključne komponente
 
 | Komponenta | Tehnologija | Opis |
 | :--- | :--- | :--- |
@@ -35,14 +35,14 @@ Rješenje je dizajnirano prema Microsoft Well-Architected Framework principima, 
 
 Prije početka, osigurajte da na svom računalu imate instalirane sljedeće alate.
 
-### 1. Instalacija Alata
+### 1. Instalacija alata
 *   **Visual Studio Code**: Preporučeni editor.
     *   Instalirajte "Bicep" ekstenziju unutar VS Code editora.
 *   **PowerShell 7+**: Preporučena verzija terminala (cross-platform).
 *   **Azure CLI**: Alat za upravljanje Azure resursima.
 *   **Git**: Za preuzimanje repozitorija.
 
-### 2. Provjera Instalacije
+### 2. Provjera instalacije
 Otvorite terminal (PowerShell) i pokrenite sljedeće naredbe:
 ```powershell
 az --version       # Provjera Azure CLI verzije
@@ -52,16 +52,16 @@ git --version      # Provjera git verzije
 
 ---
 
-## Upute za Pokretanje
+## Upute za pokretanje
 
-### Korak 1: Preuzimanje Repozitorija
+### Korak 1: Preuzimanje repozitorija
 Klonirajte ovaj javni repozitorij na svoje lokalno računalo. Za ovaj korak nije potrebna prijava:
 ```powershell
 git clone https://github.com/krebor/technova-solutions.git
 cd technova-solutions
 ```
 
-### Korak 2: Pokretanje Deploymenta
+### Korak 2: Pokretanje deploymenta
 Ovo rješenje koristi Smart Login sustav koji provjerava postojeće sesije i pamti konfiguraciju.
 
 1.  Pokrenite glavnu skriptu:
@@ -83,9 +83,9 @@ Ovo rješenje koristi Smart Login sustav koji provjerava postojeće sesije i pam
 
 ---
 
-## Verifikacija Rješenja
+## Verifikacija rješenja
 
-### 1. Web Aplikacija
+### 1. Web aplikacija
 Pristupite aplikaciji putem javne IP adrese Load Balancera (ispisana u terminalu ili vidljiva na Portalu pod `technova-lb-pip`):
 `http://<IP-ADRESA>`
 
@@ -95,7 +95,7 @@ Provjerite Resource Grupu **TechNova-RG**. Svi resursi moraju biti u stanju "Suc
 ### 3. Entra ID
 Provjerite jesu li u Microsoft Entra ID servisu kreirane grupe `TechNova-Dev`, `TechNova-Sales` i `TechNova-Support` s pripadajućim korisnicima.
 
-### 4. Napredne Značajke
+### 4. Napredne značajke
 Kako biste potvrdili ispunjenje svih ishoda učenja, provjerite sljedeće:
 *   **App Service:** Pronađite App Service resurs (prefix `technova-internal...`) i otvorite URL aplikacije.
 *   **Autoscaling:** Unutar App Service Plana (ili VMSS-a) navigirajte na **Settings -> Scale out**. Provjerite definirana pravila (npr. *Increase count by 1 when CPU > 80%*).
@@ -105,7 +105,7 @@ Kako biste potvrdili ispunjenje svih ishoda učenja, provjerite sljedeće:
 
 ---
 
-## Sigurnosne Napomene
+## Sigurnosne napomene
 
 Zbog ograničenja studentskih pretplata koje često ne uključuju "Microsoft Defender for Cloud - Server Plan", **Just-In-Time (JIT) VM Access** je implementiran kao **arhitekturalni simulirani model**:
 *   Administrativni portovi (SSH 22) su po defaultu postavljeni na **Deny** u `Management` subnetu.
@@ -126,7 +126,7 @@ Ova skripta će sinkrono obrisati cijelu Resource Grupu i sve kreirane identitet
 
 ---
 
-## Struktura Projekta
+## Struktura projekta
 
 ```text
 .
