@@ -45,6 +45,17 @@ module monitoring 'modules/monitoring.bicep' = {
   }
 }
 
+// --- 1.1.5 KEY VAULT (Sigurnost) ---
+// Dodano za sigurno upravljanje tajnama
+module keyvault 'modules/keyvault.bicep' = {
+  scope: rg
+  name: 'deploy-keyvault'
+  params: {
+    location: location
+    adminPassword: adminPassword
+  }
+}
+
 // --- 1.2 BASTION (Opcionalno - Siguran pristup) ---
 // Napomena: Bastion je skuplji servis. Može se zakomentirati ako nije potreban.
 module bastion 'modules/bastion.bicep' = {
@@ -74,6 +85,16 @@ module compute 'modules/compute.bicep' = {
     subnetId: network.outputs.frontendSubnetId
     adminPasswordOrKey: adminPassword
     logAnalyticsWorkspaceId: monitoring.outputs.workspaceId
+  }
+}
+
+// --- 2.0.1 APP SERVICE (Interni Web) ---
+// Dodano za zadovoljavanje Ishoda 5 (PaaS Web App + Autoscale)
+module appService 'modules/appservice.bicep' = {
+  scope: rg
+  name: 'deploy-appservice'
+  params: {
+    location: location
   }
 }
 
@@ -145,6 +166,17 @@ module roleAssignSupport 'modules/roleAssignment.bicep' = {
     principalId: supportGroupObjectId
     roleDefinitionId: roleMonitoringReader
     principalType: 'Group'
+  }
+}
+
+// --- 4. DASHBOARD (Vizualizacija) ---
+// Kreira se na kraju jer ovisi o ID-ovima drugih resursa
+module dashboard 'modules/dashboard.bicep' = {
+  scope: rg
+  name: 'deploy-dashboard'
+  params: {
+    location: location
+    vmssId: compute.outputs.vmssId
   }
 }
 

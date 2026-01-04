@@ -30,3 +30,20 @@ resource appInsights 'Microsoft.Insights/components@2020-02-02' = {
 output workspaceId string = logAnalyticsWorkspace.id
 output appInsightsKey string = appInsights.properties.InstrumentationKey
 output appInsightsConnectionString string = appInsights.properties.ConnectionString
+
+// 3. Action Group (Za slanje email upozorenja)
+resource actionGroup 'Microsoft.Insights/actionGroups@2021-09-01' = {
+  name: 'TechNova-Admins'
+  location: 'global'
+  properties: {
+    groupShortName: 'tn-admins'
+    enabled: true
+    emailReceivers: [
+      {
+        name: 'AdminEmail'
+        emailAddress: 'admin@technova.com'
+        useCommonAlertSchema: true
+      }
+    ]
+  }
+}

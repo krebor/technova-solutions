@@ -199,4 +199,65 @@ resource vmssDiagnostics 'Microsoft.Insights/diagnosticSettings@2021-05-01-previ
   }
 }
 
+// --- VMSS AUTOSCALING ---
+resource vmssAutoscale 'Microsoft.Insights/autoscalesettings@2015-04-01' = {
+  name: 'technova-vmss-autoscale'
+  location: location
+  properties: {
+    name: 'technova-vmss-autoscale'
+    targetResourceUri: vmss.id
+    enabled: true
+    profiles: [
+      {
+        name: 'Profile1'
+        capacity: {
+          minimum: '1'
+          maximum: '3'
+          default: '1'
+        }
+        rules: [
+          {
+            metricTrigger: {
+              metricName: 'Percentage CPU'
+              metricResourceUri: vmss.id
+              timeGrain: 'PT1M'
+              statistic: 'Average'
+              timeWindow: 'PT5M'
+              timeAggregation: 'Average'
+              operator: 'GreaterThan'
+              threshold: 75
+            }
+            scaleAction: {
+              direction: 'Increase'
+              type: 'ChangeCount'
+              value: '1'
+              cooldown: 'PT1M'
+            }
+          }
+          {
+            metricTrigger: {
+              metricName: 'Percentage CPU'
+              metricResourceUri: vmss.id
+              timeGrain: 'PT1M'
+              statistic: 'Average'
+              timeWindow: 'PT5M'
+              timeAggregation: 'Average'
+              operator: 'LessThan'
+              threshold: 25
+            }
+            scaleAction: {
+              direction: 'Decrease'
+              type: 'ChangeCount'
+              value: '1'
+              cooldown: 'PT1M'
+            }
+          }
+        ]
+      }
+    ]
+  }
+}
+
 output appUrl string = 'http://${publicIP.properties.dnsSettings.fqdn}'
+output vmssId string = vmss.id
+

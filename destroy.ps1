@@ -58,7 +58,7 @@ if ($rgExists -eq "true") {
     Write-Host "Brisanje Resource Grupe '$resourceGroupName' (ovo može potrajati)..." -ForegroundColor Magenta
     # Koristimo --no-wait=false (default je wait) jer želimo biti sigurni da je gotovo prije nego kažemo da je gotovo
     az group delete --name $resourceGroupName --yes --output none
-    Write-Host "Resource Grupa uspješno obrisana." -ForegroundColor Green
+    Write-Host "Resource Grupa uspješno obrisana (uključujući i povezane AKS infrastrukturalne grupe)." -ForegroundColor Green
 } else {
     Write-Host "Resource Grupa ne postoji. Preskačem." -ForegroundColor DarkGray
 }
@@ -71,6 +71,28 @@ try {
     Write-Host "Identiteti (korisnici i grupe) su uklonjeni." -ForegroundColor Green
 } catch {
     Write-Error "Greška pri brisanju identiteta: $($_.Exception.Message)"
+}
+
+# 3. KORAK: Purge Key Vault (Rješavanje Soft-Delete konflikta)
+Write-Host "`n[3/3] Provjera Soft-Deleted Key Vaultova..." -ForegroundColor Cyan
+try {
+    # Pronađi sve obrisane vaultove koji počinju s 'technova-kv'
+    $deletedVaults = az keyvault list-deleted --resource-type vault --query "[?starts_with(name, 'technova-kv')].name" -o tsv 2>$null
+
+    if ($deletedVaults) {
+        $vaultsArray = $deletedVaults -split "`r`n"
+        foreach ($kvName in $vaultsArray) {
+            if (-not [string]::IsNullOrWhiteSpace($kvName)) {
+                Write-Host "Trajno brisanje (Purge) Key Vaulta: $kvName..." -ForegroundColor Magenta
+                az keyvault purge --name $kvName --no-wait
+            }
+        }
+        Write-Host "Svi zaostali Key Vaultovi su trajno očišćeni." -ForegroundColor Green
+    } else {
+        Write-Host "Nema zaostalih Key Vaultova za čišćenje." -ForegroundColor DarkGray
+    }
+} catch {
+    Write-Warning "Nije uspjelo čišćenje Key Vaultova. Ako se deploy ponovi odmah, možda ćete morati ručno purge-ati vault."
 }
 
 Write-Host "`n>>> OKOLINA JE POTPUNO UKLONJENA <<<" -ForegroundColor Green

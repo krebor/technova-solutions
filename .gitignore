@@ -3,3 +3,6 @@ identities.json
 *.log
 .DS_Store
 .vscode/
+GEMINI.md
+*.pdf
+*.txt

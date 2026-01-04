@@ -3,7 +3,7 @@
 Dobrodošli u repozitorij projekta za modernizaciju IT infrastrukture tvrtke TechNova Solutions.
 Ovo rješenje demonstrira implementaciju Infrastructure as Code (IaC) principa koristeći Azure Bicep i PowerShell za potpunu automatizaciju cloud okoline na Microsoft Azure platformi.
 
-Projekt je izrađen u sklopu kolegija "Implementacija računarstva u oblaku" na Sveučilištu Algebra Bernays (2025).
+Projekt je izrađen u sklopu kolegija "Implementacija računarstva u oblaku" na Sveučilištu Algebra Bernays.
 
 ---
 
@@ -17,19 +17,21 @@ Rješenje je dizajnirano prema Microsoft Well-Architected Framework principima, 
 
 | Komponenta | Tehnologija | Opis |
 | :--- | :--- | :--- |
-| **Identiteti (IAM)** | **Microsoft Entra ID** | Automatizirano kreiranje grupa (Dev, Sales, Support) i korisnika putem Microsoft Graph API-ja. |
-| **Compute (Web)** | **VM Scale Set** | Skalabilni skup Ubuntu VM-ova (Nginx server) iza Load Balancera za visoku dostupnost. |
-| **Containeri** | **Azure Kubernetes (AKS)** | **Demonstracijski resurs:** Implementiran k8s klaster koji demonstrira spremnost infrastrukture za kontejnerizaciju aplikacija. |
-| **Baza Podataka** | **Azure SQL Database** | **Demonstracijski resurs:** PaaS rješenje za strukturirane podatke, postavljeno kao backend komponenta rješenja. |
-| **Mreža** | **Azure VNet** | Segmentirana mreža (Frontend, Backend, Management subnets) zaštićena NSG-ovima. |
-| **Sigurnost & Backup** | **Recovery Services Vault** | **Demonstracijski resurs:** Uspostavljen sustav za centralizirani backup i oporavak podataka. |
+| **Identiteti (IAM)** | **Microsoft Entra ID** | Grupe (Dev, Sales, Support), MFA i **Conditional Access** (blokada po lokaciji - HR). |
+| **Compute (Web)** | **VM Scale Set** | Ubuntu VM-ovi s **Autoscalingom** (CPU > 75%) iza Load Balancera. |
+| **App Service (PaaS)** | **Azure Web App** | Interna web aplikacija s podrškom za **Autoscaling** i visoku dostupnost. |
+| **Containeri** | **Azure Kubernetes (AKS)** | **Demonstracijski resurs:** Potpuno provizioniran k8s klaster. |
+| **Baza Podataka** | **Azure SQL Database** | **Demonstracijski resurs:** PaaS baza za strukturne podatke (Backend). |
+| **Pohrana** | **Storage & Key Vault** | **File Share** za dijeljene datoteke, Lifecycle Management, **Key Vault** za tajne. |
+| **Sigurnost (JIT)** | **NSG & JIT** | Simulirani **Just-In-Time (JIT)** pristup administrativnim portovima (SSH). |
+| **Nadzor** | **Monitor & Dashboard** | Centralizirani dashboard, logovi i **Action Groups** za alarme. |
 | **Automatizacija** | **Bicep & PowerShell** | Potpuni One-Click Deploy i Destroy procesi. |
 
 *Napomena: Resursi označeni kao "Demonstracijski" su u potpunosti provizionirani i konfigurirani na razini infrastrukture kako bi se prikazala arhitekturalna cjelovitost rješenja, iako ih osnovna web aplikacija u ovoj fazi PoC-a (Proof of Concept) ne koristi aktivno.*
 
 ---
 
-## Preduvjeti (Prerequisites)
+## Preduvjeti
 
 Prije početka, osigurajte da na svom računalu imate instalirane sljedeće alate.
 
@@ -50,7 +52,7 @@ git --version      # Provjera git verzije
 
 ---
 
-## Upute za Pokretanje (Deployment Guide)
+## Upute za Pokretanje
 
 ### Korak 1: Preuzimanje Repozitorija
 Klonirajte ovaj javni repozitorij na svoje lokalno računalo. Za ovaj korak nije potrebna prijava:
@@ -90,12 +92,29 @@ Pristupite aplikaciji putem javne IP adrese Load Balancera (ispisana u terminalu
 ### 2. Azure Portal
 Provjerite Resource Grupu **TechNova-RG**. Svi resursi moraju biti u stanju "Succeeded".
 
-### 3. Entra ID (Identiteti)
+### 3. Entra ID
 Provjerite jesu li u Microsoft Entra ID servisu kreirane grupe `TechNova-Dev`, `TechNova-Sales` i `TechNova-Support` s pripadajućim korisnicima.
+
+### 4. Napredne Značajke
+Kako biste potvrdili ispunjenje svih ishoda učenja, provjerite sljedeće:
+*   **App Service:** Pronađite App Service resurs (prefix `technova-internal...`) i otvorite URL aplikacije.
+*   **Autoscaling:** Unutar App Service Plana (ili VMSS-a) navigirajte na **Settings -> Scale out**. Provjerite definirana pravila (npr. *Increase count by 1 when CPU > 80%*).
+*   **Key Vault:** Otvorite Key Vault resurs, odaberite **Objects -> Secrets**. Provjerite jesu li `VmAdminPassword` i `SqlAdminPassword` uspješno pohranjeni.
+*   **Storage Lifecycle:** Otvorite Storage Account, pod **Data management** odaberite **Lifecycle management**. Provjerite postoji li pravilo `MoveToCoolTier`.
+*   **Monitoring Dashboard:** Potražite resurs tipa "Dashboard" u resource grupi za vizualni pregled metrika.
 
 ---
 
-## Čišćenje (Clean Up)
+## Sigurnosne Napomene
+
+Zbog ograničenja studentskih pretplata koje često ne uključuju "Microsoft Defender for Cloud - Server Plan", **Just-In-Time (JIT) VM Access** je implementiran kao **arhitekturalni simulirani model**:
+*   Administrativni portovi (SSH 22) su po defaultu postavljeni na **Deny** u `Management` subnetu.
+*   Pravilo sadrži opis o JIT simulaciji. 
+*   Pristup se u stvarnom scenariju otvara putem Azure API-ja (JIT Request) koji privremeno mijenja NSG pravilo.
+
+---
+
+## Čišćenje
 
 Kako biste spriječili nepotrebne troškove i oslobodili kvote na studentskoj pretplati, nakon testiranja uklonite resurse.
 

@@ -69,15 +69,15 @@ resource nsgManagement 'Microsoft.Network/networkSecurityGroups@2021-02-01' = {
   properties: {
     securityRules: [
       {
-        name: 'AllowSSH'
+        name: 'DenySSH_JIT_Simulated'
         properties: {
           priority: 100
           direction: 'Inbound'
-          access: 'Allow'
+          access: 'Deny' // Promijenjeno na Deny za simulaciju JIT-a
           protocol: 'Tcp'
           sourcePortRange: '*'
           destinationPortRange: '22'
-          // U produkciji ovdje ide IP firme ili Azure BastionSubnet
+          description: 'Simulacija JIT pristupa: SSH je blokiran do rucnog zahtjeva za pristup (JIT Request)'
           sourceAddressPrefix: '*' 
           destinationAddressPrefix: '*'
         }
